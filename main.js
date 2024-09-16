@@ -29,23 +29,38 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
         };
 
         ws.onmessage = (event) => {
-            const message = JSON.parse(event.data);
+            if (event.data instanceof Blob) {
+                // Convert Blob to text
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const message = reader.result;
 
-            switch (message.type) {
-                case 'offer':
-                    peerConnection.setRemoteDescription(new RTCSessionDescription(message.offer))
-                        .then(() => peerConnection.createAnswer())
-                        .then(answer => peerConnection.setLocalDescription(answer))
-                        .then(() => ws.send(JSON.stringify({ type: 'answer', answer: peerConnection.localDescription })));
-                    break;
+                    try {
+                        const parsedMessage = JSON.parse(message);
 
-                case 'answer':
-                    peerConnection.setRemoteDescription(new RTCSessionDescription(message.answer));
-                    break;
+                        switch (parsedMessage.type) {
+                            case 'offer':
+                                peerConnection.setRemoteDescription(new RTCSessionDescription(parsedMessage.offer))
+                                    .then(() => peerConnection.createAnswer())
+                                    .then(answer => peerConnection.setLocalDescription(answer))
+                                    .then(() => ws.send(JSON.stringify({ type: 'answer', answer: peerConnection.localDescription })));
+                                break;
 
-                case 'candidate':
-                    peerConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
-                    break;
+                            case 'answer':
+                                peerConnection.setRemoteDescription(new RTCSessionDescription(parsedMessage.answer));
+                                break;
+
+                            case 'candidate':
+                                peerConnection.addIceCandidate(new RTCIceCandidate(parsedMessage.candidate));
+                                break;
+                        }
+                    } catch (error) {
+                        console.error('Error parsing WebSocket message:', error);
+                    }
+                };
+                reader.readAsText(event.data);
+            } else {
+                console.error('Unexpected message type:', event.data);
             }
         };
 

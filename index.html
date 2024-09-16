@@ -4,11 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Video Chat</title>
+    <style>
+        /* Basic styling for the video elements */
+        video {
+            border: 1px solid black;
+            max-width: 200px;
+            max-height: 200px;
+            display: block;
+            margin: 10px auto;
+        }
+
+        /* Ensure videos don't exceed their container */
+        .video-container {
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     <h1>Simple Video Chat Room</h1>
-    <video id="localVideo" autoplay muted></video>
-    <video id="remoteVideo" autoplay></video>
+    <div class="video-container">
+        <video id="localVideo" autoplay muted></video>
+        <video id="remoteVideo" autoplay></video>
+    </div>
     <script src="main.js"></script>
 </body>
 </html>
