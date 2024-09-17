@@ -1,3 +1,5 @@
+//see the following page for a proper demo
+// https://webrtc.github.io/samples/src/content/peerconnection/pc1/
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 
@@ -42,7 +44,13 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
             }
         };
 
+        // Create and send offer
+        peerConnection.createOffer()
+            .then(offer => peerConnection.setLocalDescription(offer))
+            .then(() => ws.send(JSON.stringify({ type: 'offer', offer: peerConnection.localDescription })));
+
         ws.onmessage = (event) => {
+            console.log('eandebug message recieved!!', event)
             if (event.data instanceof Blob) {
                 // Convert Blob to text
                 const reader = new FileReader();
@@ -77,10 +85,5 @@ navigator.mediaDevices.getUserMedia({ video: true, audio: true })
                 console.error('Unexpected message type:', event.data);
             }
         };
-
-        // Create and send offer
-        peerConnection.createOffer()
-            .then(offer => peerConnection.setLocalDescription(offer))
-            .then(() => ws.send(JSON.stringify({ type: 'offer', offer: peerConnection.localDescription })));
     })
     .catch(error => console.error('Error accessing media devices.', error));
