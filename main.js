@@ -5,9 +5,23 @@ const peerConnectionConfig = {
     iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
 };
 
-const ws = new WebSocket('ws://localhost:3000');
+
+//192.168.8.201
+const parsedParams = new URLSearchParams(location.search)
+let ipaddress = parsedParams.get("hostIp") ?
+    `ws://${parsedParams.get("hostIp")}:3000`
+    : 'ws://localhost:3000'
+
+const websocketURL = ipaddress;
+let addElm = document.getElementById('addy');
+addElm.innerText = websocketURL;
+
+
+const ws = new WebSocket(websocketURL);
 let localStream;
 let peerConnection;
+
+
 
 // Get access to the user's camera and microphone
 navigator.mediaDevices.getUserMedia({ video: true, audio: true })
